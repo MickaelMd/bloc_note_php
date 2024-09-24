@@ -40,14 +40,6 @@ session_destroy();
 
 }
 };
-
-// echo '</br>' . '</br>' . '</br>' . '</br>';
-// echo "Session ID : " . session_id() . ' ';
-
-// if (isset($_SESSION["login"])) {
-// echo 'login : ' . $_SESSION["login"] . ' ';
-// }
-
 ?>
 
 <?php

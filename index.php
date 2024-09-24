@@ -7,11 +7,7 @@ if (!isset($_SESSION["login"])) {
     exit;
 }
 
-
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -30,6 +26,8 @@ if (!isset($_SESSION["login"])) {
 
 <body>
     <nav>
+
+        
         <div id="btn_right">
             <a href="/assets/php/logout.php"> <button class="font_title">Déconnexion</button></a>
         </div>

@@ -3,7 +3,6 @@
     unset($_SESSION["login"]);
     unset($_SESSION["id"]);
    
-   
     if (isset($_COOKIE['login'])) {
         setcookie('login', '', time() - 3600, '/', '', true, true); 
     }
