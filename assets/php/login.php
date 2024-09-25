@@ -133,6 +133,7 @@ if (isset($_SESSION['login']) && !is_null($_SESSION['login'])) {
               $_SESSION["id"] = $resultat['id'];
 
               echo '<h4> Compte créer !</h4>';
+              echo ' <meta http-equiv="refresh" content="1; URL=/../index.php" />';
                
       }};
         ?>

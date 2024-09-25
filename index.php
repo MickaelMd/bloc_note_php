@@ -26,12 +26,115 @@ if (!isset($_SESSION["login"])) {
 
 <body>
     <nav>
-
-        
         <div id="btn_right">
             <a href="/assets/php/logout.php"> <button class="font_title">Déconnexion</button></a>
         </div>
     </nav>
+
+    <section id="note_section">
+
+        <form action="" method="post" id="form_newnote">
+
+            <h2 class="font_title">Nouvelle note</h2>
+
+            <input type="text" placeholder="Titre de la note" name="title_newnote" id="title_newnote" required> </br>
+            <?php 
+                                if (isset($_POST['btn_newnote'])) {
+                                    if ($_POST['title_newnote'] < 1) {
+                                        echo '<h3 class="error_title">Le titre est invalide</h3>';
+                                        $verif_title_newnote = 0;
+                                    } else {
+                                            $verif_title_newnote = 1;
+                                    }
+                                }?>
+            <textarea name="newnote" id="newnote" cols="30" rows="10" required></textarea> </br>
+
+            <?php if (isset($_POST['btn_newnote'])) {
+                                    if ($_POST['newnote'] < 1) {
+                                        echo '<h3 class="error_title">La note est invalide</h3>';
+                                        $verif_newnote = 0;
+                                    } else {
+                                            $verif_newnote = 1;
+                                    }
+                                }?>
+
+            <button type="submit" name="btn_newnote" id="btn_newnote">Enregistré</button>
+        </form>
+        <?php if (isset($_POST['btn_newnote'])) {
+        
+         if ($verif_newnote > 0 && $verif_title_newnote > 0) {
+            
+            $sqlQuery = 'INSERT INTO note (user, name, note) VALUES (:user, :name, :note)';
+              $insertmdp = $mysqlClient->prepare($sqlQuery);
+              $insertmdp->execute([
+                'user' => $_SESSION["login"],
+                'name' => $_POST['title_newnote'],
+                'note' => $_POST['newnote']
+              ]);
+              echo "<meta http-equiv='refresh' content='0'>";
+        }}?>
+
+    </section>
+
+    <section id="note_section_show">
+
+        <?php 
+        $user = $_SESSION['login'];
+
+$sqlQuery = "SELECT * FROM `note` WHERE active = 1 AND user = '$user' ORDER BY time DESC";
+$noteStatement = $mysqlClient->prepare($sqlQuery);
+$noteStatement->execute();
+$note = $noteStatement->fetchAll();
+
+foreach ($note as $notes) {
+
+    $id_note = $notes['id'];
+
+
+    echo '
+    
+         <div class="note_box">
+            <div class="text_note">
+
+                <h4>' . htmlspecialchars($notes['name']) . '</h4>
+                <p class="note_date">' . $notes['time'] . '</p>
+                <p>' . preg_replace("/(\r\n|\n|\r)/", "<br>", htmlspecialchars($notes['note'])) . ' </p>
+            </div>
+                <form class="form_delete" action="" method="post">
+            <button class="btn_delete" type="submit" name="note_delete" value="'. $id_note .'">Supprimer</button>
+            </form>
+        </div>
+    
+    ';
+
+}
+
+        if (isset($_POST['note_delete'])) {
+            $id_note = (int) $_POST['note_delete'];
+            echo $id_note;
+           
+            $updateQuery = "UPDATE `note` SET active = :active WHERE id = :id AND user = :user";
+            $updateStatement = $mysqlClient->prepare($updateQuery);
+            $updateStatement->execute([
+                'active' => 0,
+                'id' => $id_note,
+                'user' => $user
+            ]);
+
+            echo "<meta http-equiv='refresh' content='0'>";
+            
+        }
+
+
+
+
+
+    ?>
+
+    </section>
+
+
+
 
 </body>
 
