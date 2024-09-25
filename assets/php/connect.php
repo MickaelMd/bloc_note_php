@@ -19,15 +19,17 @@ die('Erreur : ' . $e->getMessage());
 if (isset($_SESSION["login"])) {
 
 
-$req = $mysqlClient->prepare(query: 'SELECT id FROM users WHERE login = :login');
+$req = $mysqlClient->prepare(query: 'SELECT id, active FROM users WHERE login = :login');
 $req->execute(params: ['login' => $_SESSION["login"]]);
 
 $userExists = $req->fetch();
 
-if (!$userExists) {
+
+if (!$userExists || ($userExists['active'] < 1)) {
 
 
     unset($_SESSION["login"]);
+    unset($_SESSION["id"]);
    
 
 if (ini_get(option: "session.use_cookies")) {
