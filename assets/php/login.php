@@ -1,4 +1,4 @@
-<?php require_once(__DIR__ . '/connect.php'); ?>
+<?php require_once __DIR__.'/connect.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -15,11 +15,11 @@
 </head>
 <?php
 if (isset($_SESSION['login']) && !is_null($_SESSION['login'])) {
-               
-               echo '<h3 class="font_title text-center">Vous êtes connecté ! </h3>';
-               echo ' <meta http-equiv="refresh" content="1; URL=/../index.php" />';
-               return;
-           } ?>
+    echo '<h3 class="font_title text-center">Vous êtes connecté ! </h3>';
+    echo ' <meta http-equiv="refresh" content="1; URL=/../index.php" />';
+
+    return;
+} ?>
 
 <body>
     <section id="login_form">
@@ -35,39 +35,31 @@ if (isset($_SESSION['login']) && !is_null($_SESSION['login'])) {
     </section>
     <section class="error_login">
 
-        <?php 
-    
-    if (isset($_POST['btn_login_form'])) {
+        <?php
 
-      $login_login = $_POST['login_login'];
-      $mdp_login = $_POST['login_pass']; 
+    if (isset($_POST['btn_login_form'])) {
+        $login_login = $_POST['login_login'];
+        $mdp_login = $_POST['login_pass'];
 
         $req = $mysqlClient->prepare(query: 'SELECT * FROM users WHERE login = :login');
-        $req-> execute(params: array(
-            'login' => $login_login));
+        $req->execute(params: [
+            'login' => $login_login]);
         $resultat = $req->fetch();
-        
-        if (!$resultat OR !password_verify(password: $_POST['login_pass'], hash: $resultat['mdp']))
-        {
+
+        if (!$resultat or !password_verify(password: $_POST['login_pass'], hash: $resultat['mdp'])) {
             echo '<h4>Identifiant ou Mot De Passe incorrect.</h4><br/>';
-        }
-
-        elseif ($resultat['active'] < 1 ) {
-
-          echo '<h4>Compte désactivé</h4>';
-        }
-
-        else
-        {
+        } elseif ($resultat['active'] < 1) {
+            echo '<h4>Compte désactivé</h4>';
+        } else {
             echo '<h4>Vous êtes connecté !</h4><br/>';
-          
-            $_SESSION["login"] = $login_login;
-            $_SESSION["id"] = $resultat['id'];
-           
+
+            $_SESSION['login'] = $login_login;
+            $_SESSION['id'] = $resultat['id'];
+
             echo ' <meta http-equiv="refresh" content="1; URL=/../index.php" />';
         }
-      };
-    ?>
+    }
+?>
     </section>
 
     <section id="sign_form">
@@ -86,57 +78,56 @@ if (isset($_SESSION['login']) && !is_null($_SESSION['login'])) {
     </section>
     <section class="error_login">
         <?php
-      if (isset($_POST['btn_sign_form'])) {
-
-        if (!preg_match(pattern: "/^[a-zA-ZÀ-ÿ][a-zà-ÿ' -]*$/", subject: $_POST['sign_login'])) {
-        
+  if (isset($_POST['btn_sign_form'])) {
+      if (!preg_match(pattern: "/^[a-zA-ZÀ-ÿ][a-zà-ÿ' -]*$/", subject: $_POST['sign_login'])) {
           echo '<h4>Le login est obligatoire et doit comporter uniquement des lettres.</h4></br></br>';
+
           return;
-          }
-    
-        if (!preg_match(pattern: "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/", subject: $_POST['sign_pass'])) {
+      }
 
-            echo '<h4>Le mot de passe doit contenir au moins une lettre, un chiffre, et avoir au moins 8 caractères.</h4></br></br>';
-            return;
-            }
-            if ($_POST['sign_pass_confirm']!= $_POST['sign_pass'] ) {
-            echo '<h4>Les mots de passe doivent être identiques.</h4>';
-            return; };
+      if (!preg_match(pattern: "/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/", subject: $_POST['sign_pass'])) {
+          echo '<h4>Le mot de passe doit contenir au moins une lettre, un chiffre, et avoir au moins 8 caractères.</h4></br></br>';
 
-            $sign_login = $_POST['sign_login'];
-            $sign_pass = $_POST['sign_pass_confirm'];
+          return;
+      }
+      if ($_POST['sign_pass_confirm'] != $_POST['sign_pass']) {
+          echo '<h4>Les mots de passe doivent être identiques.</h4>';
 
-            $stmt = $mysqlClient->prepare(query: "SELECT * FROM users WHERE login=?");
-            $stmt->execute(params: [$sign_login]); 
-            $user = $stmt->fetch();
-            if ($user) {
-                echo "<h4>Le nom d'utilisateur existe déjà !</h4>";
-                return;
-            } 
-            else {
+          return;
+      }
 
-            $mdp_hash = password_hash($sign_pass, PASSWORD_DEFAULT);
+      $sign_login = $_POST['sign_login'];
+      $sign_pass = $_POST['sign_pass_confirm'];
 
-              $sqlQuery = 'INSERT INTO users (login, mdp) VALUES (:login, :mdp)';
-              $insertmdp = $mysqlClient->prepare($sqlQuery);
-              $insertmdp->execute([
-                'login' => $_POST['sign_login'],
-                'mdp' => $mdp_hash,
-              ]);
-              $req = $mysqlClient->prepare(query: 'SELECT id, login FROM users WHERE login = :login');
-                  $req-> execute(array(
-                      'login' => $sign_login));
-                  $resultat = $req->fetch();
-              
-              
-              $_SESSION["login"] = $sign_login;
-              $_SESSION["id"] = $resultat['id'];
+      $stmt = $mysqlClient->prepare(query: 'SELECT * FROM users WHERE login=?');
+      $stmt->execute(params: [$sign_login]);
+      $user = $stmt->fetch();
+      if ($user) {
+          echo "<h4>Le nom d'utilisateur existe déjà !</h4>";
 
-              echo '<h4> Compte créer !</h4>';
-              echo ' <meta http-equiv="refresh" content="1; URL=/../index.php" />';
-               
-      }};
-        ?>
+          return;
+      } else {
+          $mdp_hash = password_hash($sign_pass, PASSWORD_DEFAULT);
+
+          $sqlQuery = 'INSERT INTO users (login, mdp) VALUES (:login, :mdp)';
+          $insertmdp = $mysqlClient->prepare($sqlQuery);
+          $insertmdp->execute([
+              'login' => $_POST['sign_login'],
+              'mdp' => $mdp_hash,
+          ]);
+          $req = $mysqlClient->prepare(query: 'SELECT id, login FROM users WHERE login = :login');
+          $req->execute([
+              'login' => $sign_login]);
+          $resultat = $req->fetch();
+
+          $_SESSION['login'] = $sign_login;
+          $_SESSION['id'] = $resultat['id'];
+
+          echo '<h4> Compte créer !</h4>';
+          echo ' <meta http-equiv="refresh" content="1; URL=/../index.php" />';
+      }
+  }
+?>
     </section>
 </body>
 
